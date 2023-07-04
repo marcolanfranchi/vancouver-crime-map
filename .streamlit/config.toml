@@ -6,7 +6,7 @@ token = ""
 [theme]
 
 # Primary accent for interactive elements
-primaryColor = '#c6c3b6'
+primaryColor = '#0c0c0c'
 
 # Background color for the main content area
 backgroundColor = '#0c0c0c'

@@ -3,8 +3,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from data_tools import CrimeDataHandler
+from background import set_bg_hack
 
 st.set_page_config(layout="wide")
+set_bg_hack("images/vanmap-nobg.png")
 
 vancouver_crime_df = pd.read_csv("data/crimedata_csv_all_years.csv")
 crimeData = CrimeDataHandler(vancouver_crime_df)
@@ -16,12 +18,10 @@ crime_types = crimeData.get_unique_sorted_vals('TYPE')
 years = crimeData.get_unique_sorted_vals("YEAR")
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-st.text(len(vancouver_crime_df['NEIGHBOURHOOD'].unique()))
-
 st.title("Vancouver Crimes Map")
 st.markdown("Displays a map of crime locations in Vancouver from 2003 up to 2021 by time, neighbourhood, and type of crime.")
 
-# st.dataframe(vancouver_crime_df.head(5))
+st.dataframe(vancouver_crime_df.head(5))
 
 selection_container = st.container()
 
@@ -83,9 +83,17 @@ with selection_container:
     st.markdown("---")
 
 
+st.text(year_selection)
+st.text(nbhds)
+st.text(crimes)
+
+map_data = crimeData.get_data(year=year_selection, nbhd=nbhds, crime_type=crimes)
+st.dataframe(map_data)
+
+
 
 locations = pd.DataFrame(
-    data=[(47, -127)],
+    data=map_data['COORDS'],
     columns=['lat', 'lon'])
 
 st.map(locations)
