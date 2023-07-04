@@ -1,3 +1,8 @@
+
+[mapbox]
+
+token = ""
+
 [theme]
 
 # Primary accent for interactive elements
@@ -15,3 +20,5 @@ textColor = '#eaeaea'
 # Font family for all text in the app, except code blocks
 # Accepted values (serif | sans serif | monospace) 
 font = "monospace"
+
+

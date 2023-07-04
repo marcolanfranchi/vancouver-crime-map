@@ -1,76 +1,91 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 import numpy as np
-from sklearn.cluster import KMeans
+from data_tools import CrimeDataHandler
 
-# def my_kmeans(data, K, max_iterations=1000, threshold=0.001):
-#     N = data.shape[0]
-#     cols = data.shape[1]
+st.set_page_config(layout="wide")
 
-#     np.random.seed(240)
+vancouver_crime_df = pd.read_csv("data/crimedata_csv_all_years.csv")
+crimeData = CrimeDataHandler(vancouver_crime_df)
 
-#     cluster = np.random.choice(K, size=N, replace=True)
-#     data['cluster'] = cluster
+crimeData.remove_null_rows()
 
-#     centroids = np.zeros((K, cols + 1))
-#     colnames = [f"v{i}" for i in range(cols)] + ['cluster']
+van_nbhds = crimeData.get_unique_sorted_vals('NEIGHBOURHOOD')
+crime_types = crimeData.get_unique_sorted_vals('TYPE')
+years = crimeData.get_unique_sorted_vals("YEAR")
+months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-#     for k in range(K):
-#         data_cluster_k = data[data['cluster'] == k]
-#         centroids[k, :cols] = data_cluster_k.mean(axis=0)
-#         centroids[k, cols] = k
+st.text(len(vancouver_crime_df['NEIGHBOURHOOD'].unique()))
 
-#     for i in range(max_iterations):
-#         d = np.linalg.norm(data.iloc[:, :cols].values[:, None] - centroids[:, :cols], axis=2)
-#         cluster_assignment = np.argmin(d, axis=0)
-#         data['cluster'] = cluster_assignment
+st.title("Vancouver Crimes Map")
+st.markdown("Displays a map of crime locations in Vancouver from 2003 up to 2021 by time, neighbourhood, and type of crime.")
 
-#         if np.all(d < threshold):
-#             break
+# st.dataframe(vancouver_crime_df.head(5))
 
-#         for k in range(K):
-#             data_cluster_k = data[data['cluster'] == k]
-#             centroids[k, :cols] = data_cluster_k.mean(axis=0)
-#             centroids[k, cols] = k
+selection_container = st.container()
 
-#     return centroids, data['cluster']
+with selection_container:
+    st.markdown("---")
+    time_col, neighbourhood_col, crime_col = st.columns(3)
 
-df = pd.read_csv("data/simulated_data.csv")
+    with time_col:
+        year_type = st.radio(
+            "Year:",
+            options=["All (2003-2021)", "Range", "Custom"],
+            index=2
+        )
+        isRangeYears = False
+        if year_type == "All (2003-2021)":
+            year_selection = years
+        if year_type == "Range":
+            isRangeYears = True
+            from_year = st.number_input(
+                label="From Year:",
+                min_value=years[0],
+                max_value=years[-2]
+            )
+            to_year = st.number_input(
+                label="To Year:",
+                min_value=from_year+1,
+                max_value=years[-1]
+            )   
+            year_selection = [year for year in years if year >= from_year and year <= to_year]
+        if year_type == "Custom":
+            year_selection = st.multiselect(
+                "Select a year",
+                options= years,
+                default= 2021
+            )
 
-st.title("K-Means Visualizer", )
-st.markdown("infooo")
-st.markdown("info2")
+    with neighbourhood_col:
+        nbhd_choice = st.multiselect(
+            "Select one or more neighbourhoods",
+            options= ['All'] + van_nbhds,
+            default=['All']
+            )
+        if nbhd_choice.count('All') > 0:
+            nbhds = van_nbhds
+        else:
+            nbhds = nbhd_choice
 
-st.subheader('Simulated Data')
-st.dataframe(df)
+    with crime_col:
+        crime_choice = st.multiselect(
+            "Select one or more crime types",
+            options= ['All'] + crime_types,
+            default=['All']
+            )
+        if crime_choice.count('All') > 0:
+            crimes = crime_types
+        else:
+            crimes = crime_choice
 
-# Display the scatter plot of the simulated data
-st.subheader('Scatter Plot of Simulated Data')
-fig, ax = plt.subplots()
-ax.scatter(df['x'], df['y'], c='blue')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
+    st.markdown("---")
 
-st.pyplot(fig)
 
-original_data = pd.read_csv('data/simulated_data.csv')
-data2 = original_data.iloc[:, :-1]
 
-if st.button('Execute k-means algorithm'):
-    # Perform K-means clustering using scikit-learn
-    kmeans = KMeans(n_clusters=4)
-    kmeans.fit(data2)
-    cluster_assignments = kmeans.labels_
+locations = pd.DataFrame(
+    data=[(47, -127)],
+    columns=['lat', 'lon'])
 
-    # Update the original dataset with the cluster assignments
-    original_data['cluster'] = cluster_assignments
-
-    # Display the scatter plot with colored clusters
-    fig, ax = plt.subplots()
-    ax.scatter(original_data['x'], original_data['y'], c=original_data['cluster'])
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    st.subheader('K-means Clustering (scikit-learn)')
-    st.pyplot(fig)
+st.map(locations)
