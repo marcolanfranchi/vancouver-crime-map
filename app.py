@@ -16,7 +16,7 @@ st.set_page_config(
 set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
-vancouver_crime_df = pd.read_csv("data/crimedata_csv_all_years.csv")
+vancouver_crime_df = pd.read_csv("data/crimedata_csv.csv")
 crimeData = CrimeDataHandler(vancouver_crime_df)
 
 crimeData.remove_null_rows()
@@ -24,7 +24,7 @@ crimeData.remove_null_coord_rows()
 
 van_nbhds = crimeData.get_unique_sorted_vals('NEIGHBOURHOOD')
 crime_types = crimeData.get_unique_sorted_vals('TYPE')
-years = crimeData.get_unique_sorted_vals("YEAR")
+years = crimeData.get_unique_sorted_vals('YEAR')
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 # ======================================================
 
@@ -41,10 +41,10 @@ with selection_container:
     with time_col:
         year_type = st.radio(
             "Year:",
-            options=["All (2003-2021)", "Range", "Custom"],
+            options=["All (2003-2023)", "Range", "Custom"],
             index=2
         )
-        if year_type == "All (2003-2021)":
+        if year_type == "All (2003-2023)":
             year_selection = years
         if year_type == "Range":
             from_year = st.number_input(
@@ -62,7 +62,7 @@ with selection_container:
             year_selection = st.multiselect(
                 "Select a year",
                 options= years,
-                default= 2021
+                default= 2023
             )
     # ======================================================
     with neighbourhood_col:
@@ -83,7 +83,7 @@ with selection_container:
             options= ['All'] + crime_types,
             default='Break and Enter Commercial'
             )
-        if crime_choice.count('All') > 0:
+        if crime_choice.count('All') > 0 or not crime_choice:
             crimes_selection = crime_types
         else:
             crimes_selection = crime_choice
@@ -96,13 +96,13 @@ map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_t
 st.text('Year(s) ---------------------------------------------------------------------------')
 if year_type == 'Range':
     st.text(str(year_selection[0]) + " to " + str(year_selection[-1]))
-elif year_type == 'All (2003-2021)':
-    st.text('All (2003-2021)')
+elif year_type == 'All (2003-2023)' or (year_type == "Custom" and not year_selection):
+    st.text('All (2003-2023)')
 elif year_type == "Custom":
     st.text(', '.join([str(y) for y in sorted(year_selection)]))
 
 st.text('Neighbourhood(s) ------------------------------------------------------------------')
-if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds):
+if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds) or not nbhds_selection:
     st.text('All')
 else:  
     st.text(', '.join(nbhds_selection))
