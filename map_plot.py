@@ -2,6 +2,7 @@ import folium
 from streamlit_folium import st_folium, folium_static
 import streamlit as st
 import utm as utm
+from data_card import generate_popup_html
 
 def plot_on_map(df):
     m = folium.Map(location=utm.to_latlon(df['X'].mean(), df['Y'].mean(), 10, 'N'), 
@@ -10,7 +11,7 @@ def plot_on_map(df):
     #Loop through each row in the dataframe
     for i,row in df.iterrows():
         #Setup the content of the popup
-        iframe = folium.IFrame("Crime: " + row["TYPE"] + "\n Area: " + row["NEIGHBOURHOOD"] + " Loc: (" + str(row['X']) + "," + str(row['Y']) + ")")
+        iframe = folium.IFrame(generate_popup_html(row))
         
         #Initialise the popup using the iframe
         popup = folium.Popup(iframe, min_width=300, max_width=300)

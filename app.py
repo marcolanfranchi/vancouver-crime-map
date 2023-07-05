@@ -52,7 +52,7 @@ with selection_container:
                 min_value=from_year+1,
                 max_value=years[-1]
             )   
-            year_selection = [year for year in years if year >= from_year and year <= to_year]
+            year_selection = range(from_year, to_year+1)
         if year_type == "Custom":
             year_selection = st.multiselect(
                 "Select a year",
@@ -93,8 +93,8 @@ if year_type == 'Range':
     st.text(str(year_selection[0]) + " to " + str(year_selection[-1]))
 elif year_type == 'All (2003-2021)':
     st.text('All (2003-2021)')
-else:
-    st.text(', '.join(str(y) for y in [year_selection]))
+elif year_type == "Custom":
+    st.text(', '.join([str(y) for y in sorted(year_selection)]))
 
 st.text('Neighbourhood(s) ------------------------------------------------------------------')
 if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds):
