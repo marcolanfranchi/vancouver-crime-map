@@ -29,7 +29,7 @@ months = ["January", "February", "March", "April", "May", "June", "July", "Augus
 # ======================================================
 
 st.title("Vancouver Crimes Map")
-st.markdown("Displays a map of crime locations in Vancouver from 2003 up to 2021 by time, neighbourhood, and type of crime.")
+st.markdown("Displays a map of crime locations in Vancouver from 2003 up to June 2023 by time, neighbourhood, and type of offence.")
 
 # ======================================================
 selection_container = st.container()
