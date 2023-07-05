@@ -14,7 +14,7 @@ def plot_on_map(df):
         iframe = folium.IFrame(generate_popup_html(row))
         
         #Initialise the popup using the iframe
-        popup = folium.Popup(iframe, min_width=300, max_width=300)
+        popup = folium.Popup(iframe, min_width=300, max_width=300, min_height=100, max_height=100)
         
         #Add each row to the map
         loc = utm.to_latlon(row['X'], row['Y'], 10, 'N')

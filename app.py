@@ -7,7 +7,12 @@ from map_plot import plot_on_map
 from background import set_bg_hack
 
 # ======================================================
-st.set_page_config(layout="centered")
+
+st.set_page_config(
+    page_title="VCM",
+    page_icon="🚔",
+    layout="centered",
+)
 set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
