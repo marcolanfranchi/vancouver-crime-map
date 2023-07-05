@@ -87,6 +87,9 @@ with selection_container:
 
 map_data = crimeData.get_data(year=year_selection, nbhd=nbhds, crime_type=crimes)
 # st.dataframe(map_data)
+st.text('Year(s): '+ str(year_selection))
+st.text('Neighbourhood: ' +  ','.join(nbhds))
+st.text('Offense Type: ' + ','.join(crimes))
 
 map_container = st.container()
 with map_container:

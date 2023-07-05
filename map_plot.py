@@ -21,4 +21,4 @@ def plot_on_map(df):
                     popup = popup, c=row['TYPE'],
                     ).add_to(m)
 
-    st_data = folium_static(m, width=700, height=800)
+    st_data = folium_static(m, width=700, height=500)
