@@ -7,6 +7,9 @@ class CrimeDataHandler:
     
     def remove_null_rows(self):
         self.data = self.data.dropna(subset=['NEIGHBOURHOOD', 'X', 'Y'], how='any')
+
+    def remove_null_coord_rows(self):
+        self.data = self.data.loc[(self.data['X'] != 0) | (self.data['Y'] != 0)]
         
     def get_unique_sorted_vals(self, column):
         return sorted(self.data[column].unique())
