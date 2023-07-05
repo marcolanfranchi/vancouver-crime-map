@@ -95,22 +95,25 @@ map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_t
 # st.dataframe(map_data)
 st.text('Year(s) ---------------------------------------------------------------------------')
 if year_type == 'Range':
-    st.text(str(year_selection[0]) + " to " + str(year_selection[-1]))
+    years_label = str(year_selection[0]) + " to " + str(year_selection[-1])
 elif year_type == 'All (2003-2023)' or (year_type == "Custom" and not year_selection):
-    st.text('All (2003-2023)')
+    years_label = 'All (2003-2023)'
 elif year_type == "Custom":
-    st.text(', '.join([str(y) for y in sorted(year_selection)]))
+    years_label = ', '.join([str(y) for y in sorted(year_selection)])
+st.text(years_label)
 
 st.text('Neighbourhood(s) ------------------------------------------------------------------')
 if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds) or not nbhds_selection:
-    st.text('All')
+    nbhds_label = 'All'
 else:  
-    st.text(', '.join(nbhds_selection))
+    nbhds_label = ', '.join(nbhds_selection)
+st.text(nbhds_label)
 
 st.text('Offences --------------------------------------------------------------------------')
 for n in [crime for crime in crimes_selection if crime != 'All']:
     count = list(map_data['TYPE']).count(n)
     st.text(n + ": " + str(count))
+offences_label = ', '.join(crimes_selection)
 
 map_container = st.container()
 with map_container:
@@ -118,6 +121,6 @@ with map_container:
     if map_data.empty == False:    
         plot_on_map(map_data)
     else:
-        st.warning("No " + str(crimes_selection) + "'s occured in " + str(nbhds_selection) + " during " + str(year_selection))
+        st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
     st.markdown("---")
 
