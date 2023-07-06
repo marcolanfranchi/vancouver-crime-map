@@ -16,11 +16,8 @@ st.set_page_config(
 set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
-vancouver_crime_df = pd.read_csv("data/crimedata_csv.csv")
-crimeData = CrimeDataHandler(vancouver_crime_df)
-
-crimeData.remove_null_rows()
-crimeData.remove_null_coord_rows()
+crimeData = CrimeDataHandler("data/crimedata_csv.csv")
+crimeData.preprocess_data()
 
 van_nbhds = crimeData.get_unique_sorted_vals('NEIGHBOURHOOD')
 crime_types = crimeData.get_unique_sorted_vals('TYPE')
@@ -92,7 +89,7 @@ with selection_container:
 
 # ======================================================
 map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_type=crimes_selection)
-# st.dataframe(map_data)
+st.dataframe(map_data)
 st.text('Year(s) ---------------------------------------------------------------------------')
 if year_type == 'Range':
     years_label = str(year_selection[0]) + " to " + str(year_selection[-1])
