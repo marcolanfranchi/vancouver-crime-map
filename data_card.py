@@ -1,5 +1,4 @@
 import streamlit as st
-import folium
 from folium.plugins import MarkerCluster
 
 def format_date(month, date, year):

@@ -25,6 +25,4 @@ def set_bg_hack(main_bg):
          unsafe_allow_html=True
      )
 
-# bg_img = iio.imread("vanmap-nobg.png")
-# iio.imwrite("vanmap-nobg.png", bg_img)
 
