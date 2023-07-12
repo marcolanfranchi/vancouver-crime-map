@@ -24,6 +24,4 @@ class CrimeDataHandler:
         if crime_type:
             filtered_data = filtered_data[filtered_data['TYPE'].isin(crime_type)]
         
-        filtered_data['COORDS'] = list(zip(filtered_data['X'], filtered_data['Y']))
-        
         return filtered_data

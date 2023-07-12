@@ -89,7 +89,6 @@ with selection_container:
 
 # ======================================================
 map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_type=crimes_selection)
-st.dataframe(map_data)
 st.text('Year(s) ---------------------------------------------------------------------------')
 if year_type == 'Range':
     years_label = str(year_selection[0]) + " to " + str(year_selection[-1])
@@ -121,3 +120,6 @@ with map_container:
         st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
     st.markdown("---")
 
+
+st.dataframe(map_data[['TYPE', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'HUNDRED_BLOCK', 'NEIGHBOURHOOD']],
+              hide_index=True)
