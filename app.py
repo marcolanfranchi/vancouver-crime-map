@@ -2,7 +2,6 @@ import streamlit as st
 from data_tools import CrimeDataHandler
 from map_plot import plot_on_map
 from background import set_bg_hack
-from streamlit_extras.mandatory_date_range import date_range_picker
 from datetime import timedelta
 
 
@@ -66,11 +65,12 @@ with st.sidebar:
 
     st.markdown("---") # ================================================
 
-    time_selection = date_range_picker("Select a date range", 
-                                       default_start = max_date - timedelta(days=30),
-                                       default_end = max_date,
-                                       min_date = min_date,
-                                       max_date  =max_date)
+    time_selection = st.date_input("Select a date range",
+                                        value = [max_date - timedelta(days=30), max_date], 
+                                       # default_start = max_date - timedelta(days=30),
+                                       # default_end = max_date,
+                                       min_value = min_date,
+                                       max_value  =max_date)
     print(time_selection)
 
 
