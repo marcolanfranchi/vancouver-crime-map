@@ -3,6 +3,6 @@ streamlit==1.24.0
 plotly==5.15.0
 imageio==2.31.1
 streamlit_folium==0.12.0
-# streamlit_extras==0.6.1
+streamlit-extras==0.2.7
 utm==0.7.0
 psycopg2-binary==2.9.6
