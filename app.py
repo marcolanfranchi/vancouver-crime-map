@@ -5,6 +5,9 @@ import numpy as np
 from data_tools import CrimeDataHandler
 from map_plot import plot_on_map
 from background import set_bg_hack
+from streamlit_extras.mandatory_date_range import date_range_picker
+from datetime import timedelta
+
 
 # ======================================================
 
@@ -16,25 +19,46 @@ st.set_page_config(
 set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
-crimeData = CrimeDataHandler("data/crimedata_csv.csv")
-crimeData.preprocess_data()
+crimeData = CrimeDataHandler()
 
-van_nbhds = crimeData.get_unique_sorted_vals('NEIGHBOURHOOD')
-crime_types = crimeData.get_unique_sorted_vals('TYPE')
-years = crimeData.get_unique_sorted_vals('YEAR')
+van_nbhds = crimeData.get_unique_sorted_vals("NEIGHBOURHOOD")
+crime_types = crimeData.get_unique_sorted_vals("TYPE")
+years = crimeData.get_unique_sorted_vals("YEAR")
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-# ======================================================
+min_date = crimeData.get_min_date_from_db().date()
+max_date = crimeData.get_max_date_from_db().date()
+# ===================================================================================================================================
 
 st.title("Vancouver Crimes Map")
 st.markdown("Displays a map of crime locations in Vancouver from 2003 up to June 2023 by time, neighbourhood, and type of offence.")
 
-# ======================================================
+# ============================================================
+
+# # sidebar
+# with st.sidebar:
+#     time_selection = date_range_picker("Select a date range", 
+#                                        default_start = max_date - timedelta(days=30),
+#                                        default_end = max_date,
+#                                        min_date = min_date,
+#                                        max_date  =max_date)
+#     print(time_selection[0], time_selection[1])
+
+#     all_neighbourhoods = st.checkbox("Click to View all Neighbourhoods")
+#     nbhd_choice = st.multiselect(
+#         "Select one or more neighbourhoods",
+#         options= van_nbhds,
+#         default='Arbutus Ridge',
+#         disabled = all_neighbourhoods
+#         )
+#     nbhds_selection = nbhd_choice
+
+# ============================================================
 selection_container = st.container()
 with selection_container:
     st.markdown("---")
     time_col, neighbourhood_col, crime_col = st.columns(3)
 
-    # ======================================================
+    # ========================================================
     with time_col:
         year_type = st.radio(
             "Year:",
@@ -54,14 +78,14 @@ with selection_container:
                 min_value=from_year+1,
                 max_value=years[-1]
             )   
-            year_selection = range(from_year, to_year+1)
+            year_selection = [year for year in range(from_year, to_year+1)]
         if year_type == "Custom":
             year_selection = st.multiselect(
                 "Select a year",
                 options= years,
                 default= 2023
             )
-    # ======================================================
+    # =======================================================
     with neighbourhood_col:
         nbhd_choice = st.multiselect(
             "Select one or more neighbourhoods",
@@ -87,39 +111,45 @@ with selection_container:
 
     st.markdown("---")
 
-# ======================================================
-map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_type=crimes_selection)
-st.text('Year(s) ---------------------------------------------------------------------------')
-if year_type == 'Range':
-    years_label = str(year_selection[0]) + " to " + str(year_selection[-1])
-elif year_type == 'All (2003-2023)' or (year_type == "Custom" and not year_selection):
-    years_label = 'All (2003-2023)'
-elif year_type == "Custom":
-    years_label = ', '.join([str(y) for y in sorted(year_selection)])
-st.text(years_label)
+# ===========================================================
+map_button = st.button("View Map")
+if map_button:
+    map_data = crimeData.get_data(year=year_selection, nbhd=nbhds_selection, crime_type=crimes_selection)
 
-st.text('Neighbourhood(s) ------------------------------------------------------------------')
-if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds) or not nbhds_selection:
-    nbhds_label = 'All'
-else:  
-    nbhds_label = ', '.join(nbhds_selection)
-st.text(nbhds_label)
+    st.text('Year(s) ---------------------------------------------------------------------------')
+    if year_type == 'Range':
+        years_label = str(year_selection[0]) + " to " + str(year_selection[-1])
+    elif year_type == 'All (2003-2023)' or (year_type == "Custom" and not year_selection):
+        years_label = 'All (2003-2023)'
+    elif year_type == "Custom":
+        years_label = ', '.join([str(y) for y in sorted(year_selection)])
+    st.text(years_label)
 
-st.text('Offences --------------------------------------------------------------------------')
-for n in [crime for crime in crimes_selection if crime != 'All']:
-    count = list(map_data['TYPE']).count(n)
-    st.text(n + ": " + str(count))
-offences_label = ', '.join(crimes_selection)
+    st.text('Neighbourhood(s) ------------------------------------------------------------------')
+    if 'All' in nbhds_selection or len([n for n in nbhds_selection if n != 'All']) == len(van_nbhds) or not nbhds_selection:
+        nbhds_label = 'All'
+    else:  
+        nbhds_label = ', '.join(nbhds_selection)
+    st.text(nbhds_label)
 
-map_container = st.container()
-with map_container:
-    st.markdown("---")
-    if map_data.empty == False:    
-        plot_on_map(map_data)
-    else:
-        st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
-    st.markdown("---")
+    st.text('Offences --------------------------------------------------------------------------')
+    for n in [crime for crime in crimes_selection if crime != 'All']:
+        count = list(map_data['type']).count(n)
+        st.text(n + ": " + str(count))
+    offences_label = ', '.join(crimes_selection)
+
+    map_container = st.container()
+    with map_container:
+        st.markdown("---")
+        if map_data.empty == False:    
+            plot_on_map(map_data)
+        else:
+            st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
+        st.markdown("---")
 
 
-st.dataframe(map_data[['TYPE', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'HUNDRED_BLOCK', 'NEIGHBOURHOOD']],
-              hide_index=True)
+    st.dataframe(map_data[['type', 'year', 'month', 'day', 'hour', 'minute', 'hundred_block', 'neighbourhood']],
+                hide_index=True)
+
+
+

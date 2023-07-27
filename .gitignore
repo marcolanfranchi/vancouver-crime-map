@@ -9,3 +9,6 @@ __pycache__/
 
 # flyway 
 flyway.conf
+
+# streamlit
+secrets.toml

@@ -1,27 +1,77 @@
 import pandas as pd
-from functools import lru_cache
+import psycopg2
+from psycopg2 import sql
+import streamlit as st
 
 class CrimeDataHandler:
-    def __init__(self, file_path):
-        self.data = pd.read_csv(file_path)
-        self.preprocess_data()
+    def __init__(self):
+        self.connection_string = self._get_connection_string()
 
-    def preprocess_data(self):
-        self.data = self.data.dropna(subset=['NEIGHBOURHOOD', 'X', 'Y'], how='any')
-        self.data = self.data.loc[(self.data['X'] != 0) | (self.data['Y'] != 0)]
-        
+    def _get_connection_string(self):
+        postgres_secrets = st.secrets["postgres"]
+        return f"postgresql://{postgres_secrets['user']}:{postgres_secrets['password']}@{postgres_secrets['host']}:{postgres_secrets['port']}/{postgres_secrets['dbname']}"
+
+    @st.cache_data(ttl=60)  # Add cache to the get_data function with a time-to-live of 60 seconds
+    def get_data(_self, year=None, nbhd=None, crime_type=None):
+        with psycopg2.connect(_self.connection_string) as conn:
+            query = _self._build_query(year, nbhd, crime_type)
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                data = cursor.fetchall()
+
+        columns = [desc[0] for desc in cursor.description]
+        data = pd.DataFrame(data, columns=columns)
+
+        data.dropna(subset=['neighbourhood', 'x', 'y'], inplace=True)
+        return data
+
+    @st.cache_data(ttl=600)
+    def get_min_date_from_db(_self):
+        with psycopg2.connect(_self.connection_string) as conn:
+            with conn.cursor() as cursor:
+                query = sql.SQL("SELECT MIN(datetime) FROM crime_data;")
+                cursor.execute(query)
+                min_date = cursor.fetchone()[0]
+        return min_date
+
+    @st.cache_data(ttl=600)
+    def get_max_date_from_db(_self):
+        with psycopg2.connect(_self.connection_string) as conn:
+            with conn.cursor() as cursor:
+                query = sql.SQL("SELECT MAX(datetime) FROM crime_data;")
+                cursor.execute(query)
+                max_date = cursor.fetchone()[0]
+        return max_date
+
     def get_unique_sorted_vals(self, column):
-        return sorted(self.data[column].unique())
-    
-    # @lru_cache(maxsize=None) # cache results of method
-    def get_data(self, year=[], nbhd=[], crime_type=[]):
-        filtered_data = self.data.copy()
-        
-        if year:
-            filtered_data = filtered_data[filtered_data['YEAR'].isin(year)]
-        if nbhd:
-            filtered_data = filtered_data[filtered_data['NEIGHBOURHOOD'].isin(nbhd)]
-        if crime_type:
-            filtered_data = filtered_data[filtered_data['TYPE'].isin(crime_type)]
-        
-        return filtered_data
+        # Safely escape the column name using string formatting
+        query = sql.SQL("SELECT DISTINCT " + column + " FROM crime_data;") # .format(sql.Identifier(column).as_string(conn_or_curs=None))
+        with psycopg2.connect(self.connection_string) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                unique_vals = cursor.fetchall()
+
+        unique_vals = [val[0] for val in unique_vals if val[0] is not None]
+        return sorted(unique_vals)
+
+    def _build_query(self, years, nbhds, crime_types):
+        query_template = sql.SQL("SELECT * FROM crime_data WHERE {conditions};")
+        conditions = []
+        params = {}
+
+        if years:
+            conditions.append(sql.SQL("year IN " + "(" + str(years)[1:-1] + ")"))
+            params["year"] = tuple(years)
+        if nbhds:
+            conditions.append(sql.SQL("neighbourhood IN " + "(" + str(nbhds)[1:-1] + ")"))
+            params["nbhd"] = tuple(nbhds)
+        if crime_types:
+            conditions.append(sql.SQL("type IN " + "(" + str(crime_types)[1:-1] + ")"))
+            params["crime_type"] = tuple(crime_types)
+
+        if not conditions:
+            conditions.append(sql.SQL("TRUE"))  # Fetch all rows if no conditions specified
+
+        query = query_template.format(conditions=sql.SQL(" AND ").join(conditions))
+        print(query.as_string(context=None))
+        return query.as_string(context=None)
