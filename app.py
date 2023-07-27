@@ -1,7 +1,4 @@
-import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
 from data_tools import CrimeDataHandler
 from map_plot import plot_on_map
 from background import set_bg_hack

@@ -1,6 +1,5 @@
 import folium
 from streamlit_folium import st_folium, folium_static
-import streamlit as st
 import utm as utm
 from data_card import generate_popup_html
 

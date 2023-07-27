@@ -1,5 +1,3 @@
-import streamlit as st
-from folium.plugins import MarkerCluster
 
 def format_date(month, date, year):
     month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
