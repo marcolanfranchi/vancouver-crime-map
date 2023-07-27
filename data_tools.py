@@ -12,9 +12,9 @@ class CrimeDataHandler:
         return f"postgresql://{postgres_secrets['user']}:{postgres_secrets['password']}@{postgres_secrets['host']}:{postgres_secrets['port']}/{postgres_secrets['dbname']}"
 
     @st.cache_data(ttl=60)  # Add cache to the get_data function with a time-to-live of 60 seconds
-    def get_data(_self, year=None, nbhd=None, crime_type=None):
+    def get_data(_self, date_range=None, nbhd=None, crime_type=None):
         with psycopg2.connect(_self.connection_string) as conn:
-            query = _self._build_query(year, nbhd, crime_type)
+            query = _self._build_query(date_range, nbhd, crime_type)
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 data = cursor.fetchall()
@@ -54,14 +54,17 @@ class CrimeDataHandler:
         unique_vals = [val[0] for val in unique_vals if val[0] is not None]
         return sorted(unique_vals)
 
-    def _build_query(self, years, nbhds, crime_types):
+    def _build_query(self, date_range, nbhds, crime_types):
         query_template = sql.SQL("SELECT * FROM crime_data WHERE {conditions};")
         conditions = []
         params = {}
 
-        if years:
-            conditions.append(sql.SQL("year IN " + "(" + str(years)[1:-1] + ")"))
-            params["year"] = tuple(years)
+        if date_range:
+            start_date = date_range[0]
+            end_date = date_range[1]
+        conditions.append(sql.SQL("datetime >= CAST('" + str(start_date) + "' as date) AND datetime <= CAST('" + str(end_date) + "' as date)"))
+        params["start_date"] = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        params["end_date"] = end_date.strftime("%Y-%m-%d %H:%M:%S")
         if nbhds:
             conditions.append(sql.SQL("neighbourhood IN " + "(" + str(nbhds)[1:-1] + ")"))
             params["nbhd"] = tuple(nbhds)
