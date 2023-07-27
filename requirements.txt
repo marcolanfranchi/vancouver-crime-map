@@ -4,4 +4,4 @@ plotly==5.15.0
 imageio==2.31.1
 streamlit_folium==0.12.0
 utm==0.7.0
-psycopg-binary2==2.9.6
+psycopg2-binary==2.9.6
