@@ -10,11 +10,11 @@ def format_time(hour, minute):
     return f"{hour:02d}:{minute:02d} {am_pm}"
 
 def generate_popup_html(row):
-    offence = row["type"]
-    location = row["neighbourhood"]
-    block = row["hundred_block"]
-    day = format_date(row["month"], row["day"], row["year"])
-    time = format_time(row["hour"], row["minute"])
+    offence = row["TYPE"]
+    location = row["NEIGHBOURHOOD"]
+    block = row["HUNDRED_BLOCK"]
+    day = format_date(row["MONTH"], row["DAY"], row["YEAR"])
+    time = format_time(row["HOUR"], row["MINUTE"])
 
     html = f"""
         <div style="font-family: monospace; color: #0c0c0c;">

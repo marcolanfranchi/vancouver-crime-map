@@ -1,5 +1,5 @@
 import streamlit as st
-from data_tools import CrimeDataHandler
+from data_tools_csv import CrimeDataHandler
 from map_plot import plot_on_map
 from background import set_bg_hack
 from datetime import timedelta
@@ -15,14 +15,15 @@ st.set_page_config(
 set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
-crimeData = CrimeDataHandler()
+crimeData = CrimeDataHandler(csv_file_path="data/crimedata_csv.csv")
+crimeData.load_data()
 
 van_nbhds = crimeData.get_unique_sorted_vals("NEIGHBOURHOOD")
 crime_types = crimeData.get_unique_sorted_vals("TYPE")
 years = crimeData.get_unique_sorted_vals("YEAR")
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-min_date = crimeData.get_min_date_from_db().date()
-max_date = crimeData.get_max_date_from_db().date()
+min_date = crimeData.get_min_date()
+max_date = crimeData.get_max_date()
 # ===================================================================================================================================
 
 st.title("Vancouver Crimes Map")
@@ -36,7 +37,7 @@ with st.sidebar:
     nbhd_choice = st.multiselect(
         "Select one or more neighbourhoods",
         options= van_nbhds,
-        default='Arbutus Ridge',
+        default=van_nbhds[0],
         disabled = all_neighbourhoods
         )
     if all_neighbourhoods:
@@ -52,7 +53,7 @@ with st.sidebar:
     crime_choice = st.multiselect(
         "Select one or more offence types",
         options= crime_types,
-        default='Break and Enter Commercial',
+        default=crime_types[0],
         disabled = all_crimes
         )
     if all_crimes:
@@ -70,7 +71,7 @@ with st.sidebar:
                                        # default_start = max_date - timedelta(days=30),
                                        # default_end = max_date,
                                        min_value = min_date,
-                                       max_value  =max_date)
+                                       max_value = max_date)
     print(time_selection)
 
 
@@ -139,7 +140,7 @@ with st.sidebar:
 # ===========================================================
 map_button = st.button("View Map")
 if map_button:
-    map_data = crimeData.get_data(date_range=time_selection, nbhd=nbhds_selection, crime_type=crimes_selection)
+    map_data = crimeData.get_filtered_data(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection)
 
     # st.text('Year(s) ---------------------------------------------------------------------------')
     # if year_type == 'Range':
@@ -173,8 +174,8 @@ if map_button:
     #     st.markdown("---")
 
 
-    st.dataframe(map_data[['type', 'year', 'month', 'day', 'hour', 'minute', 'hundred_block', 'neighbourhood']],
-                hide_index=True)
+    # st.dataframe(map_data[['type', 'year', 'month', 'day', 'hour', 'minute', 'hundred_block', 'neighbourhood']],
+    #             hide_index=True)
 
 
 
