@@ -35,7 +35,7 @@ def plot_heatmap(df):
     
     heat_data = [[row['LAT'], row['LON']] for index, row in df.iterrows()]
 
-    HeatMap(heat_data, blur=5).add_to(m)
+    HeatMap(heat_data).add_to(m)
     st_data = folium_static(m, width=700, height=500)
 
 
