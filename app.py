@@ -1,6 +1,6 @@
 import streamlit as st
 from data_tools_csv import CrimeDataHandler
-from map_plot import plot_on_map
+from map_plot import plot_on_map, generate_map_title
 from background import set_bg_hack
 from datetime import timedelta
 
@@ -12,11 +12,11 @@ st.set_page_config(
     page_icon="🚔",
     layout="centered",
 )
-set_bg_hack("images/vanmap-nobg.png")
+# set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
-crimeData = CrimeDataHandler(csv_file_path="data/crimedata_csv.csv")
-crimeData.load_data()
+crimeData = CrimeDataHandler()
+crimeData.load_data(csv_file_path="data/crimedata_csv.csv")
 
 van_nbhds = crimeData.get_unique_sorted_vals("NEIGHBOURHOOD")
 crime_types = crimeData.get_unique_sorted_vals("TYPE")
@@ -26,8 +26,8 @@ min_date = crimeData.get_min_date()
 max_date = crimeData.get_max_date()
 # ===================================================================================================================================
 
-st.title("Vancouver Crimes Map")
-st.markdown("Displays a map of crimes in Vancouver with the choice to filter by time, neighbourhood, and type of crime.")
+st.header("Vancouver Crimes Map")
+st.markdown("Display a map of crimes in Vancouver by selecting neighbourhoods, crimes, and a range of dates.")
 
 # ========================================================================
 
@@ -45,8 +45,6 @@ with st.sidebar:
     else:
         nbhds_selection = nbhd_choice
 
-    print(nbhds_selection)
-
     st.markdown("---") # ================================================
 
     all_crimes = st.checkbox("Click to View all Crimes")
@@ -59,10 +57,7 @@ with st.sidebar:
     if all_crimes:
         crimes_selection = crime_types
     else:
-        crimes_selection = crime_choice
-    
-    print(crimes_selection)
-    
+        crimes_selection = crime_choice    
 
     st.markdown("---") # ================================================
 
@@ -72,75 +67,14 @@ with st.sidebar:
                                        # default_end = max_date,
                                        min_value = min_date,
                                        max_value = max_date)
-    print(time_selection)
+    
+    st.markdown("---") # ================================================
+    
+    map_data = None
+    map_button = st.button("View Map")
+    if map_button:
+        map_data = crimeData.get_filtered_data(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection)
 
-
-
-
-
-# ============================================================
-# selection_container = st.container()
-# with selection_container:
-#     st.markdown("---")
-#     time_col, neighbourhood_col, crime_col = st.columns(3)
-
-#     # ========================================================
-#     with time_col:
-#         year_type = st.radio(
-#             "Year:",
-#             options=["All (2003-2023)", "Range", "Custom"],
-#             index=2
-#         )
-#         if year_type == "All (2003-2023)":
-#             year_selection = years
-#         if year_type == "Range":
-#             from_year = st.number_input(
-#                 label="From Year:",
-#                 min_value=years[0],
-#                 max_value=years[-2]
-#             )
-#             to_year = st.number_input(
-#                 label="To Year:",
-#                 min_value=from_year+1,
-#                 max_value=years[-1]
-#             )   
-#             year_selection = [year for year in range(from_year, to_year+1)]
-#         if year_type == "Custom":
-#             year_selection = st.multiselect(
-#                 "Select a year",
-#                 options= years,
-#                 default= 2023
-#             )
-#     # =======================================================
-#     with neighbourhood_col:
-#         nbhd_choice = st.multiselect(
-#             "Select one or more neighbourhoods",
-#             options= ['All'] + van_nbhds,
-#             default='Arbutus Ridge'
-#             )
-#         if nbhd_choice.count('All') > 0:
-#             nbhds_selection = van_nbhds
-#         else:
-#             nbhds_selection = nbhd_choice
-
-#     # ======================================================
-#     with crime_col:
-#         crime_choice = st.multiselect(
-#             "Select one or more offence types",
-#             options= ['All'] + crime_types,
-#             default='Break and Enter Commercial'
-#             )
-#         if crime_choice.count('All') > 0 or not crime_choice:
-#             crimes_selection = crime_types
-#         else:
-#             crimes_selection = crime_choice
-
-#     st.markdown("---")
-
-# ===========================================================
-map_button = st.button("View Map")
-if map_button:
-    map_data = crimeData.get_filtered_data(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection)
 
     # st.text('Year(s) ---------------------------------------------------------------------------')
     # if year_type == 'Range':
@@ -164,11 +98,13 @@ if map_button:
     #     st.text(n + ": " + str(count))
     # offences_label = ', '.join(crimes_selection)
 
-    map_container = st.container()
-    with map_container:
-        st.markdown("---")
-        if map_data.empty == False:    
-            plot_on_map(map_data)
+map_container = st.container()
+with map_container:
+    st.markdown("---")
+    if map_data is not None: 
+        st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
+                                    all_nbhds=van_nbhds, all_crimes=crime_types))   
+        plot_on_map(map_data)
     #     else:
     #         st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
     #     st.markdown("---")

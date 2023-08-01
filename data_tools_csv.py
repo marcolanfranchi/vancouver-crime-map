@@ -1,15 +1,31 @@
 import streamlit as st
 import pandas as pd
 
+@st.cache_data
+def csv_to_df(csv_file_path):
+    return pd.read_csv(csv_file_path)
+
+@st.cache_data
+def cached_get_sorted_vals(data, column):
+    return sorted(data[column].unique())
+
+
+@st.cache_data
+def cached_get_date(data, min_or_max):
+    if min_or_max == 'min':
+        return data['DATETIME'].min()
+    else:
+        return data['DATETIME'].max()
+
+
 class CrimeDataHandler:
-    def __init__(self, csv_file_path):
-        self.csv_file_path = csv_file_path
+    def __init__(self):
         self.data = None
 
-    # @st.cache_data
-    def load_data(self):
+
+    def load_data(self, csv_file_path):
         # Load data from the CSV file
-        self.data = pd.read_csv(self.csv_file_path)
+        self.data = csv_to_df(csv_file_path)
         self.preprocess_data()
         self.add_datetime_column()
 
@@ -25,11 +41,9 @@ class CrimeDataHandler:
         # Add a 'datetime' column by combining year, month, day, hour, and minute
         self.data['DATETIME'] = pd.to_datetime(self.data[['YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE']])
 
-    # @st.cache_data()
     def get_unique_sorted_vals(self, column):
-        return sorted(self.data[column].unique())
+        return cached_get_sorted_vals(self.data, column)
 
-     #@st.cache_data
     def get_filtered_data(self, date_range=[], nbhds=[], crimes=[]):
         start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
         filtered_data = self.data[(self.data['DATETIME'] >= start_date) & (self.data['DATETIME'] <= end_date)]
@@ -44,9 +58,7 @@ class CrimeDataHandler:
 
 
     def get_min_date(self):
-        min_date = self.data['DATETIME'].min()
-        return min_date
+        return cached_get_date(self.data, 'min')
 
     def get_max_date(self):
-        max_date = self.data['DATETIME'].max()
-        return max_date
+        return cached_get_date(self.data, 'max')

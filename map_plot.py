@@ -1,7 +1,9 @@
 import folium
 from streamlit_folium import st_folium, folium_static
 import utm as utm
+import pandas as pd
 from data_card import generate_popup_html
+import streamlit as st
 
 def plot_on_map(df):
     m = folium.Map(location=utm.to_latlon(df['X'].mean(), df['Y'].mean(), 10, 'N'), 
@@ -25,6 +27,28 @@ def plot_on_map(df):
         ).add_to(m)
 
     st_data = folium_static(m, width=700, height=500)
+
+@st.cache_data
+def generate_map_title(date_range, nbhds, crimes, all_nbhds, all_crimes):
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
+
+    nbhds_title = ''
+    if len(nbhds) == len(all_nbhds) or not nbhds:
+        nbhds_title = 'All of Vancouver'
+    else:
+        nbhds_title = ', '.join(nbhds)
+
+    crimes_title = ''
+    if len(crimes) == len(all_crimes) or not crimes:
+        crimes_title = 'All Crimes'
+    else:
+        crimes_title = ', '.join(crimes)
+
+    title = f"{nbhds_title} - {crimes_title} ({start_date_str} to {end_date_str})"
+    return title
 
 def get_icon(crime_type):
     icon = ""
