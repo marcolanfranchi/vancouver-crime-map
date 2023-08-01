@@ -1,6 +1,6 @@
 import streamlit as st
 from data_tools_csv import CrimeDataHandler
-from map_plot import plot_on_map, generate_map_title
+from map_plot import plot_on_map, plot_heatmap, generate_map_title
 from background import set_bg_hack
 from datetime import timedelta
 
@@ -102,19 +102,26 @@ map_container = st.container()
 with map_container:
     st.markdown("---")
     if map_data is not None:
-        if  len(map_data) != 0:
-            st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
+        if len(map_data) != 0:
+            tab1, tab2 = st.tabs(["Location Map", "HeatMap"])
+            with tab1:
+                st.header("Crime Locaion Map")
+                st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
                                         all_nbhds=van_nbhds, all_crimes=crime_types))   
-            plot_on_map(map_data)
+                plot_on_map(map_data)
+
+                st.dataframe(map_data, hide_index=True)
+            with tab2:
+                st.header("Crime HeatMap")
+                st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
+                                        all_nbhds=van_nbhds, all_crimes=crime_types))   
+                plot_heatmap(map_data)
         else:
             st.warning("There are no crimes fitting the selected options. Try expanding the time range.")
+
     #     else:
     #         st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
     #     st.markdown("---")
-
-
-    # st.dataframe(map_data[['type', 'year', 'month', 'day', 'hour', 'minute', 'hundred_block', 'neighbourhood']],
-    #             hide_index=True)
 
 
 

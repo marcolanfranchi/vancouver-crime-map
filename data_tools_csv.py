@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import utm as utm
 
 @st.cache_data
 def csv_to_df(csv_file_path):
@@ -28,6 +29,7 @@ class CrimeDataHandler:
         self.data = csv_to_df(csv_file_path)
         self.preprocess_data()
         self.add_datetime_column()
+        self.add_lat_lon_columns()
 
     # Removes data with no location point
     def preprocess_data(self):
@@ -40,6 +42,10 @@ class CrimeDataHandler:
 
         # Add a 'datetime' column by combining year, month, day, hour, and minute
         self.data['DATETIME'] = pd.to_datetime(self.data[['YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE']])
+
+    def add_lat_lon_columns(self):
+        self.data['LAT'], self.data['LON'] = utm.to_latlon(self.data['X'], self.data['Y'], 10, 'N')
+
 
     def get_unique_sorted_vals(self, column):
         return cached_get_sorted_vals(self.data, column)

@@ -1,12 +1,13 @@
 import folium
+from folium import plugins
+from folium.plugins import HeatMap
 from streamlit_folium import st_folium, folium_static
-import utm as utm
 import pandas as pd
 from data_card import generate_popup_html
 import streamlit as st
 
 def plot_on_map(df):
-    m = folium.Map(location=utm.to_latlon(df['X'].mean(), df['Y'].mean(), 10, 'N'), 
+    m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
                  zoom_start=13, control_scale=True, tiles="cartodb positron")
 
     #Loop through each row in the dataframe
@@ -18,7 +19,7 @@ def plot_on_map(df):
         popup = folium.Popup(iframe, min_width=300, max_width=300, min_height=100, max_height=100)
         
         #Add each row to the map
-        loc = utm.to_latlon(row['X'], row['Y'], 10, 'N')
+        loc = row['LAT'], row['LON']
 
         folium.Marker(
             location=list(loc),
@@ -27,6 +28,16 @@ def plot_on_map(df):
         ).add_to(m)
 
     st_data = folium_static(m, width=700, height=500)
+
+def plot_heatmap(df):
+    m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
+                 zoom_start=13, control_scale=True, tiles="cartodb positron")
+    
+    heat_data = [[row['LAT'], row['LON']] for index, row in df.iterrows()]
+
+    HeatMap(heat_data, blur=5).add_to(m)
+    st_data = folium_static(m, width=700, height=500)
+
 
 @st.cache_data
 def generate_map_title(date_range, nbhds, crimes, all_nbhds, all_crimes):
