@@ -26,8 +26,8 @@ min_date = crimeData.get_min_date()
 max_date = crimeData.get_max_date()
 # ===================================================================================================================================
 
-st.header("Vancouver Crimes Map")
-st.markdown("Display a map of crimes in Vancouver by selecting neighbourhoods, crimes, and a range of dates.")
+st.title(":gray[Vancouver Crimes Map]")
+st.info("Display a map of crimes in Vancouver by selecting neighbourhoods, crimes, and a range of dates.")
 
 # ========================================================================
 
