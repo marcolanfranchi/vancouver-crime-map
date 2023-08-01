@@ -101,10 +101,13 @@ with st.sidebar:
 map_container = st.container()
 with map_container:
     st.markdown("---")
-    if map_data is not None: 
-        st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
-                                    all_nbhds=van_nbhds, all_crimes=crime_types))   
-        plot_on_map(map_data)
+    if map_data is not None:
+        if  len(map_data) != 0:
+            st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
+                                        all_nbhds=van_nbhds, all_crimes=crime_types))   
+            plot_on_map(map_data)
+        else:
+            st.warning("There are no crimes fitting the selected options. Try expanding the time range.")
     #     else:
     #         st.warning("No " + offences_label + "'s occured in " + nbhds_label + " during " + years_label)
     #     st.markdown("---")
