@@ -9,8 +9,7 @@ import streamlit as st
 def plot_on_map(df):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
                  zoom_start=13, control_scale=True, 
-                 tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-                 attr="Stadia.AlidadeSmoothDark")
+                 tiles="CartoDB Positron")
 
     #Loop through each row in the dataframe
     for i,row in df.iterrows():
@@ -34,8 +33,7 @@ def plot_on_map(df):
 def plot_heatmap(df, with_time=False):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
                 zoom_start=13, control_scale=True, 
-                tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-                attr="Stadia.AlidadeSmoothDark")
+                tiles="CartoDB Positron")
     
     sorted_df = df.sort_values(by='DATETIME')
     heat_data = [[row['LAT'], row['LON']] for index, row in sorted_df.iterrows()]
