@@ -43,7 +43,7 @@ def plot_heatmap(df, with_time=False):
         date_strings = [d.strftime('%d/%m/%Y, %H:%M:%S') for d in sorted_df['DATETIME']]
         HeatMapWithTime(heat_data, index=date_strings, auto_play=True, radius=40).add_to(m)
     else:
-        HeatMap(heat_data).add_to(m)
+        HeatMap(heat_data, radius=20).add_to(m)
     folium_static(m, width=700, height=500)
 
 
