@@ -1,6 +1,6 @@
 import folium
 from folium import plugins
-from folium.plugins import HeatMap
+from folium.plugins import HeatMap, HeatMapWithTime
 from streamlit_folium import st_folium, folium_static
 import pandas as pd
 from data_card import generate_popup_html
@@ -8,7 +8,9 @@ import streamlit as st
 
 def plot_on_map(df):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
-                 zoom_start=13, control_scale=True, tiles="cartodb positron")
+                 zoom_start=13, control_scale=True, 
+                 tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+                 attr="Stadia.AlidadeSmoothDark")
 
     #Loop through each row in the dataframe
     for i,row in df.iterrows():
@@ -29,14 +31,20 @@ def plot_on_map(df):
 
     st_data = folium_static(m, width=700, height=500)
 
-def plot_heatmap(df):
+def plot_heatmap(df, with_time=False):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
-                 zoom_start=13, control_scale=True, tiles="cartodb positron")
+                zoom_start=13, control_scale=True, 
+                tiles="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+                attr="Stadia.AlidadeSmoothDark")
     
-    heat_data = [[row['LAT'], row['LON']] for index, row in df.iterrows()]
-
-    HeatMap(heat_data).add_to(m)
-    st_data = folium_static(m, width=700, height=500)
+    sorted_df = df.sort_values(by='DATETIME')
+    heat_data = [[row['LAT'], row['LON']] for index, row in sorted_df.iterrows()]
+    if with_time:
+        date_strings = [d.strftime('%d/%m/%Y, %H:%M:%S') for d in sorted_df['DATETIME']]
+        HeatMapWithTime(heat_data, index=date_strings, auto_play=True, radius=40).add_to(m)
+    else:
+        HeatMap(heat_data).add_to(m)
+    folium_static(m, width=700, height=500)
 
 
 @st.cache_data

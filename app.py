@@ -116,6 +116,12 @@ with map_container:
                 st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
                                         all_nbhds=van_nbhds, all_crimes=crime_types))   
                 plot_heatmap(map_data)
+            # with tab3:
+            #     st.header("Crime HeatMap Over Time")
+            #     st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
+            #                             all_nbhds=van_nbhds, all_crimes=crime_types))
+            #     plot_heatmap(map_data, with_time=True)
+
         else:
             st.warning("There are no crimes fitting the selected options. Try expanding the time range.")
 
