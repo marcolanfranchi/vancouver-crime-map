@@ -10,8 +10,17 @@ from datetime import timedelta
 st.set_page_config(
     page_title="VCM",
     page_icon="🚔",
-    layout="centered",
+    layout="wide",
 )
+
+# remove streamlit's main menu and footer
+hide_default_format = """
+       <style>
+       #MainMenu {visibility: hidden; }
+       footer {visibility: hidden;}
+       </style>
+       """
+st.markdown(hide_default_format, unsafe_allow_html=True)
 # set_bg_hack("images/vanmap-nobg.png")
 
 # ======================================================
@@ -106,16 +115,26 @@ with map_container:
             tab1, tab2 = st.tabs(["Location Map", "HeatMap"])
             with tab1:
                 st.header("Crime Locaion Map")
+                st.text("")
                 st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
-                                        all_nbhds=van_nbhds, all_crimes=crime_types))   
+                                        all_nbhds=van_nbhds, all_crimes=crime_types)) 
+                st.text("")
+                st.text("")
                 plot_on_map(map_data)
-
-                st.dataframe(map_data, hide_index=True)
+                st.text("")
+                st.text("")
+                st.dataframe(map_data[['TYPE', 'HUNDRED_BLOCK', 'NEIGHBOURHOOD', 'DATETIME', ]], hide_index=True)
             with tab2:
                 st.header("Crime HeatMap")
+                st.text("")
                 st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
-                                        all_nbhds=van_nbhds, all_crimes=crime_types))   
+                                        all_nbhds=van_nbhds, all_crimes=crime_types)) 
+                st.text("")  
+                st.text("")
                 plot_heatmap(map_data)
+                st.text("")
+                st.text("")
+                st.dataframe(map_data[['TYPE', 'HUNDRED_BLOCK', 'NEIGHBOURHOOD', 'DATETIME', ]], hide_index=True)
             # with tab3:
             #     st.header("Crime HeatMap Over Time")
             #     st.subheader(generate_map_title(date_range=time_selection, nbhds=nbhds_selection, crimes=crimes_selection,
