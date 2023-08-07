@@ -51,7 +51,7 @@ class CrimeDataHandler:
         return cached_get_sorted_vals(self.data, column)
 
     def get_filtered_data(self, date_range=[], nbhds=[], crimes=[]):
-        start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+        start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1]) + pd.DateOffset(hours=23, minutes=59)
         filtered_data = self.data[(self.data['DATETIME'] >= start_date) & (self.data['DATETIME'] <= end_date)]
         
         if nbhds:
