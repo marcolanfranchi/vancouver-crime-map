@@ -4,7 +4,6 @@ from map_plot import plot_on_map, plot_heatmap, generate_map_title
 from background import set_bg_hack
 from datetime import timedelta
 
-
 # ======================================================
 
 st.set_page_config(
@@ -25,7 +24,7 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 # ======================================================
 crimeData = CrimeDataHandler()
-crimeData.load_data(csv_file_path="data/crimedata_csv.csv")
+crimeData.load_data(csv_file_path="data/crimedata_csv_AllNeighbourhoods_AllYears-aug14-2023.csv")
 
 van_nbhds = crimeData.get_unique_sorted_vals("NEIGHBOURHOOD")
 crime_types = crimeData.get_unique_sorted_vals("TYPE")
