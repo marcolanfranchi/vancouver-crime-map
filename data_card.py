@@ -17,10 +17,10 @@ def generate_popup_html(row):
     time = format_time(row["HOUR"], row["MINUTE"])
 
     html = f"""
-        <div style="font-family: monospace; color: #0c0c0c;">
-            <p>{offence}</p>
-            <p>{location}, {block}, Vancouver, BC</p>
-            <p>{day} at {time}</p>
+        <div style="font-family: sans-serif; color: #3b3b3b; width: 100%; font-size: 14px; font-weight: bold;">
+            <p><span style="display: inline-block; width: 30px;">📖:</span> <span>{offence}</span></p>
+            <p><span style="display: inline-block; width: 30px;">&#127968;:</span> {location}, {block}, Vancouver, BC</p>
+            <p><span style="display: inline-block; width: 30px;">&#128336;:</span> <span style="font-style: italic;">{day} at {time}</span></p>
         </div>
     """
     return html

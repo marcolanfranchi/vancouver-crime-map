@@ -6,19 +6,19 @@ token = ""
 [theme]
 
 # Primary accent for interactive elements
-primaryColor = '#cfcfcf'
+primaryColor = '#3b3b3b'
 
 # Background color for the main content area
 backgroundColor = '#0c0c0c'
 
 # Background color for sidebar and most interactive widgets
-secondaryBackgroundColor = '#002756'
+secondaryBackgroundColor = '#63646b'
 
 # Color used for almost all text
 textColor = '#eaeaea'
 
 # Font family for all text in the app, except code blocks
 # Accepted values (serif | sans serif | monospace) 
-font = "monospace"
+font = "sans serif"
 
 

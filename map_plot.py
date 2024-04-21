@@ -9,31 +9,31 @@ import streamlit as st
 def plot_on_map(df):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
                  zoom_start=13, control_scale=True, 
-                 tiles="CartoDB Positron")
+                 tiles="CartoDB Positron", width='100%', height='100%', position='relative', left='0%', top='0%', overflow='hidden')
 
     #Loop through each row in the dataframe
     for i,row in df.iterrows():
         #Setup the content of the popup
-        iframe = folium.IFrame(generate_popup_html(row))
+        iframe = folium.IFrame(generate_popup_html(row), width=300, height=125)
         
         #Initialise the popup using the iframe
-        popup = folium.Popup(iframe, min_width=300, max_width=300, min_height=100, max_height=100)
+        popup = folium.Popup(iframe, parse_html=True)
         
         #Add each row to the map
         loc = row['LAT'], row['LON']
 
         folium.Marker(
             location=list(loc),
-            popup = popup, 
+            popup = popup,
             icon=get_icon(row['TYPE'])
         ).add_to(m)
 
-    st_data = folium_static(m, width=700, height=500)
+    st_data = folium_static(m, width=750, height=500)
 
 def plot_heatmap(df, with_time=False):
     m = folium.Map(location=[df['LAT'].mean(), df['LON'].mean()], 
                 zoom_start=13, control_scale=True, 
-                tiles="CartoDB Positron")
+                tiles="CartoDB Positron", width='100%', height='100%', position='relative', left='0%', top='0%', overflow='hidden')
     
     sorted_df = df.sort_values(by='DATETIME')
     heat_data = [[row['LAT'], row['LON']] for index, row in sorted_df.iterrows()]
